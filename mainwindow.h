@@ -26,6 +26,8 @@ public:
 private slots:
     void on_listWidget_activated(const QModelIndex &index);
 
+    void on_lineEdit_returnPressed();
+
 private:
     Ui::MainWindow *ui;
     QString userName;

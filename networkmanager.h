@@ -7,8 +7,15 @@
 #include <QTime>
 #include <QDataStream>
 
-#define CMD_HELLOW 1
+#define CMD_HELLO 1
+#define CMD_BYE 2
 #define CMD_MESSAGE 3
+#define CMD_ISTHERE 3
+#define CMD_IAMHERE 4
+#define CMD_CHANGENICK 5
+#define CMD_SENDALLMESSAGE 6
+#define CMD_SENDPRIVATEMESSAGE 7
+#define CMD_GETUSERNICK 8
 
 
 const QString SERVER_IP = "54.236.42.113";
@@ -20,9 +27,9 @@ class NetworkManager : public QObject
     Q_OBJECT
 public:
     explicit NetworkManager(QObject *parent = 0, QString userName = "");
-    bool sendMessage(QString message);
-
-
+    bool sendMessage(QString);
+    bool SendAllMessage(QString);
+    bool ChangeNick(QString);
 
 private:
     QTimer *reconnectTimer = NULL;

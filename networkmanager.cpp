@@ -58,9 +58,23 @@ void NetworkManager::sayHello()
     QByteArray r;
     QDataStream str(&r, QIODevice::WriteOnly);
 
-    str << CMD_HELLOW << uniqueID;
+    str << CMD_HELLO << uniqueID;
+    socket->write(r);
+    ChangeNick(userName);
+}
+
+bool NetworkManager::ChangeNick(QString name) {
+    if (socket->state() != QAbstractSocket::ConnectedState)
+        return false;
+
+    QByteArray r;
+    QDataStream str(&r, QIODevice::WriteOnly);
+
+    str << CMD_CHANGENICK << uniqueID << name;
 
     socket->write(r);
+
+    return true;
 }
 
 void NetworkManager::reconnect()
@@ -82,6 +96,20 @@ void NetworkManager::connected()
 
 }
 
+bool NetworkManager::SendAllMessage(QString message) {
+    if (socket->state() != QAbstractSocket::ConnectedState)
+        return false;
+
+    QByteArray r;
+    QDataStream str(&r, QIODevice::WriteOnly);
+
+    str << CMD_SENDALLMESSAGE << uniqueID << message;
+
+    socket->write(r);
+
+    return true;
+}
+
 void NetworkManager::readyRead()
 {
     QByteArray r = socket->readAll();
@@ -93,7 +121,14 @@ void NetworkManager::readyRead()
     int uniqId;
     str >> uniqId;
 
-    if()
+    qDebug()<< "Incomming transmission: type: " << cmd << " from: "<< uniqId;
+
+    if(cmd == CMD_MESSAGE || cmd == CMD_CHANGENICK){
+        QString message;
+        str >> message;
+        qDebug() << message;
+
+    }
 
 }
 

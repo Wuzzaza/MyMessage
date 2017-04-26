@@ -40,3 +40,9 @@ void MainWindow::on_listWidget_activated(const QModelIndex &index)
     qDebug() << ui->listWidget->item(ui->listWidget->currentRow())->text();
 
 }
+
+void MainWindow::on_lineEdit_returnPressed()
+{
+    networkManager->SendAllMessage(ui->lineEdit->text());
+    ui->lineEdit->clear();
+}
