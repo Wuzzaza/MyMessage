@@ -27,6 +27,7 @@ private slots:
     void on_listWidget_activated(const QModelIndex &index);
 
     void on_lineEdit_returnPressed();
+    void messageRecieved(int Id, QString message);
 
 private:
     Ui::MainWindow *ui;

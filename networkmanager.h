@@ -30,6 +30,7 @@ public:
     bool sendMessage(QString);
     bool SendAllMessage(QString);
     bool ChangeNick(QString);
+    int getMyUniqueId(){return this->uniqueID;}
 
 private:
     QTimer *reconnectTimer = NULL;
@@ -42,6 +43,7 @@ private:
 
 
 signals:
+    void messageRecieved(int Id, QString message);
 
 public slots:
     void reconnect();

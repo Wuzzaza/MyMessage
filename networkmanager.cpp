@@ -23,7 +23,6 @@ NetworkManager::NetworkManager(QObject *parent, QString userName) : QObject(pare
 bool NetworkManager::sendMessage(QString message)
 {
     if (!(socket->ConnectedState)) return false;
-    //TODO
 
     QByteArray byteArr;
     QDataStream dataStream(&byteArr, QIODevice::WriteOnly);
@@ -97,8 +96,10 @@ void NetworkManager::connected()
 }
 
 bool NetworkManager::SendAllMessage(QString message) {
-    if (socket->state() != QAbstractSocket::ConnectedState)
+    if (socket->state() != QAbstractSocket::ConnectedState){
+        qDebug()<<"Not Send!!!";
         return false;
+    }
 
     QByteArray r;
     QDataStream str(&r, QIODevice::WriteOnly);
@@ -123,10 +124,12 @@ void NetworkManager::readyRead()
 
     qDebug()<< "Incomming transmission: type: " << cmd << " from: "<< uniqId;
 
-    if(cmd == CMD_MESSAGE || cmd == CMD_CHANGENICK){
+    if(cmd == CMD_SENDALLMESSAGE || cmd == CMD_CHANGENICK){
         QString message;
         str >> message;
         qDebug() << message;
+
+        if(cmd == CMD_SENDALLMESSAGE) emit messageRecieved(uniqId, message);
 
     }
 

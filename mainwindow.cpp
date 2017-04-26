@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent, QString userName):
     ui->listWidget->addItems(usersList);
     networkManager = new NetworkManager (this, userName);
 
+    connect(networkManager, SIGNAL(messageRecieved(int,QString)), this, SLOT(messageRecieved(int,QString)));
+
 }
 
 MainWindow::~MainWindow()
@@ -45,4 +47,15 @@ void MainWindow::on_lineEdit_returnPressed()
 {
     networkManager->SendAllMessage(ui->lineEdit->text());
     ui->lineEdit->clear();
+}
+
+void MainWindow::messageRecieved(int Id, QString message)
+{
+    QString newMessageSender = (Id == networkManager->getMyUniqueId()) ? "Me: " : ("From " + QString::number(Id) + ": ");
+    QString newMessage = "<br/><b>" + newMessageSender + "</b>";
+    newMessage += "(" + QDate::currentDate().toString();
+    newMessage += "): " + message;
+    newMessage += "<br/>";
+
+    ui->textEdit->insertHtml(newMessage);
 }
