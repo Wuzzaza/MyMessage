@@ -18,6 +18,8 @@ NetworkManager::NetworkManager(QObject *parent, QString userName) : QObject(pare
     uniqueID = generateUniqueID();
 
     reconnectTimer->start();
+    reconnect();
+
 }
 
 bool NetworkManager::sendMessage(QString message)
@@ -27,10 +29,8 @@ bool NetworkManager::sendMessage(QString message)
     QByteArray byteArr;
     QDataStream dataStream(&byteArr, QIODevice::WriteOnly);
 
-    dataStream << uniqueID;
-    dataStream << userName;
-    dataStream << CMD_MESSAGE;
-    dataStream << message;
+
+    dataStream << (quint64)MAGIC_START << CMD_SENDALLMESSAGE << uniqueID << message;
 
     socket->write(byteArr);
 
@@ -63,13 +63,14 @@ void NetworkManager::sayHello()
 }
 
 bool NetworkManager::ChangeNick(QString name) {
-    if (socket->state() != QAbstractSocket::ConnectedState)
+    if (socket->state() != QAbstractSocket::ConnectedState){
+        qDebug()<< "Not Sent";
         return false;
-
+    }
     QByteArray r;
     QDataStream str(&r, QIODevice::WriteOnly);
 
-    str << CMD_CHANGENICK << uniqueID << name;
+    str << (quint64)MAGIC_START << CMD_CHANGENICK << uniqueID << name;
 
     socket->write(r);
 
@@ -78,7 +79,9 @@ bool NetworkManager::ChangeNick(QString name) {
 
 void NetworkManager::reconnect()
 {
+    emit connectingToServer();
     socket->connectToHost(SERVER_IP, SERVER_PORT);
+
 
 }
 
@@ -91,6 +94,7 @@ void NetworkManager::connected()
 {
     qDebug() << "Connected...";
     reconnectTimer->stop();
+    emit connectedToServer();
     sayHello();
 
 }
@@ -104,7 +108,7 @@ bool NetworkManager::SendAllMessage(QString message) {
     QByteArray r;
     QDataStream str(&r, QIODevice::WriteOnly);
 
-    str << CMD_SENDALLMESSAGE << uniqueID << message;
+    str << (quint64)MAGIC_START << CMD_SENDALLMESSAGE << uniqueID << message;
 
     socket->write(r);
 
@@ -116,22 +120,27 @@ void NetworkManager::readyRead()
     QByteArray r = socket->readAll();
     QDataStream str(&r, QIODevice::ReadOnly);
 
+    quint64 ms;
+    str >> ms;
+
     int cmd;
     str >> cmd;
 
     int uniqId;
     str >> uniqId;
 
-    qDebug()<< "Incomming transmission: type: " << cmd << " from: "<< uniqId;
+    QString message;
+    str >> message;
 
-    if(cmd == CMD_SENDALLMESSAGE || cmd == CMD_CHANGENICK){
-        QString message;
-        str >> message;
-        qDebug() << message;
+    qDebug()<< "Icomming transmission: type: " << cmd << " from: "<< uniqId << " content: " << message;
 
-        if(cmd == CMD_SENDALLMESSAGE) emit messageRecieved(uniqId, message);
 
-    }
+
+    if(cmd == CMD_SENDALLMESSAGE) emit messageRecieved(uniqId, message);
+    if(cmd == CMD_CHANGENICK) emit userNickChanged(uniqId, message);
+    if(cmd == CMD_GETUSERNICK) ChangeNick(userName);
 
 }
+
+
 

@@ -4,9 +4,11 @@
 #include <QMainWindow>
 #include <QCloseEvent>
 #include <QDebug>
+#include <QListWidgetItem>
 #include "filemanager.h"
 #include "privatemessage.h"
 #include "networkmanager.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -15,6 +17,12 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+
+    struct chatUser{
+        QListWidgetItem userName;
+        PrivateMessage *privateWindow;
+    };
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -28,12 +36,19 @@ private slots:
 
     void on_lineEdit_returnPressed();
     void messageRecieved(int Id, QString message);
+    void userNickChanged(int Id, QString message);
+    void addNewUser(int uniqueId);
+    void connectedToServer();
+    void connectingToServer();
 
 private:
     Ui::MainWindow *ui;
     QString userName;
-    PrivateMessage *privateMsgWindow;
+
     NetworkManager *networkManager;
+
+    QHash<int, chatUser*> users;
+
 
 };
 

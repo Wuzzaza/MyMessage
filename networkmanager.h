@@ -7,15 +7,18 @@
 #include <QTime>
 #include <QDataStream>
 
-#define CMD_HELLO 1
-#define CMD_BYE 2
+#define CMD_HELLO 0
+#define CMD_BYE 1
 #define CMD_MESSAGE 3
 #define CMD_ISTHERE 3
 #define CMD_IAMHERE 4
-#define CMD_CHANGENICK 5
-#define CMD_SENDALLMESSAGE 6
-#define CMD_SENDPRIVATEMESSAGE 7
-#define CMD_GETUSERNICK 8
+#define CMD_CHANGENICK 2
+#define CMD_SENDALLMESSAGE 5
+#define CMD_SENDPRIVATEMESSAGE 8
+#define CMD_GETUSERNICK 7
+
+#define MAGIC_START 0xaabbccddeeff0011
+
 
 
 const QString SERVER_IP = "54.236.42.113";
@@ -44,6 +47,9 @@ private:
 
 signals:
     void messageRecieved(int Id, QString message);
+    void userNickChanged(int Id, QString nick);
+    void connectedToServer();
+    void connectingToServer();
 
 public slots:
     void reconnect();
